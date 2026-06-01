@@ -1,3 +1,4 @@
+from app.ml.superres_enhancer import enhance_superres
 import cv2
 import numpy as np
 
@@ -82,43 +83,8 @@ def enhance_image(image_bytes):
     # BLURRY IMAGE
     elif sharpness < 80:
 
-        # STEP 1 — Moderate unsharp masking
-        gaussian = cv2.GaussianBlur(
-            img,
-            (9, 9),
-            10.0
-        )
+        enhanced = enhance_superres(img)
 
-        sharpened = cv2.addWeighted(
-            img,
-            1.4,
-            gaussian,
-            -0.4,
-            0
-        )
-
-        # STEP 2 — CLAHE local contrast enhancement
-        lab = cv2.cvtColor(
-            sharpened,
-            cv2.COLOR_BGR2LAB
-        )
-
-        l, a, b = cv2.split(lab)
-
-        clahe = cv2.createCLAHE(
-            clipLimit=1.2,
-            tileGridSize=(8, 8)
-        )
-
-        cl = clahe.apply(l)
-
-        merged = cv2.merge((cl, a, b))
-
-        enhanced = cv2.cvtColor(
-            merged,
-            cv2.COLOR_LAB2BGR
-        )
-
-        mode = "Restored"
+        mode = "AI Super Resolution"
 
     return original, enhanced, mode
