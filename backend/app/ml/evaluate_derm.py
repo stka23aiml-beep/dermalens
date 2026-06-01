@@ -93,3 +93,9 @@ if __name__ == "__main__":
         print("Improved     :", improved)
         print("Degraded     :", degraded)
         print("Total Images :", len(deltas))
+
+def predict_confidence(image):
+
+    _, confidence = predict(model, image)
+
+    return float(confidence)

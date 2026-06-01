@@ -1,3 +1,4 @@
+from app.ml.evaluate_derm import predict_confidence
 from fastapi import APIRouter, UploadFile, File
 import base64
 import cv2
@@ -60,6 +61,18 @@ async def upload_image(file: UploadFile = File(...)):
 
     original, enhanced, mode = enhance_image(image_bytes)
 
+    confidence_before = predict_confidence(original)
+
+    confidence_after = predict_confidence(enhanced)
+
+    confidence_delta = confidence_after - confidence_before
+
+    print("CONF BEFORE:", confidence_before)
+
+    print("CONF AFTER:", confidence_after)
+
+    print("CONF DELTA:", confidence_delta)
+
     # calculate metrics
     sharp_before = calculate_sharpness(original)
     sharp_after = calculate_sharpness(enhanced)
@@ -94,5 +107,12 @@ async def upload_image(file: UploadFile = File(...)):
         "quality_before": quality_before,
         "quality_after": quality_after
     },
+
+    "confidence": {
+        "before": confidence_before,
+        "after": confidence_after,
+        "delta": confidence_delta
+    },
+
     "interpretation": interpretation
 }
