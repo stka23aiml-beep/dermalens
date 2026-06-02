@@ -1,8 +1,9 @@
-// src/App.jsx
-import Home from "./pages/Home";
+import UploadBox from "./components/UploadBox";
 
 function App() {
-  return <Home />;
+
+  return <UploadBox />;
+
 }
 
 export default App;
