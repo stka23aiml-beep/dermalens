@@ -198,11 +198,12 @@ function UploadBox() {
       Δ {(confidence.delta * 100).toFixed(4)}%
     </p>
 
+    
     <p className="mt-3 text-xs text-gray-500">
-      {confidence.delta >= 0
-        ? "Enhancement improved model confidence"
-        : "Enhancement slightly reduced model confidence"}
-    </p>
+    {confidence.delta >= 0
+      ? "Enhanced image preserved diagnostic features for AI-assisted evaluation"
+      : "Visual clarity improved, though residual artifacts may still influence AI confidence"}
+  </p>
 
   </div>
 )}
