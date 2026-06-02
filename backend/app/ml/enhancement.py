@@ -58,7 +58,10 @@ def enhance_image(image_bytes):
     sharpness = detect_blur(img)
 
     brightness = np.mean(
-        cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        cv2.cvtColor(
+            img,
+            cv2.COLOR_BGR2GRAY
+        )
     )
 
     print("DEBUG → brightness:", brightness)
@@ -68,23 +71,37 @@ def enhance_image(image_bytes):
     # default
     enhanced = img.copy()
 
-    mode = "No Enhancement"
+    modes = []
 
     # VERY DARK IMAGE
-    if brightness < 50:
+    if brightness < 90:
 
         enhanced = fix_brightness_lab(
-            img,
-            gamma=0.9
+            enhanced
         )
 
-        mode = "Brightness Enhanced"
+        modes.append(
+            "Brightness Enhanced"
+        )
 
     # BLURRY IMAGE
-    elif sharpness < 80:
+    if sharpness < 80:
 
-        enhanced = enhance_superres(img)
+        enhanced = enhance_superres(
+            enhanced
+        )
 
-        mode = "AI Super Resolution"
+        modes.append(
+            "AI Super Resolution"
+        )
+
+    # final mode label
+    if len(modes) == 0:
+
+        mode = "No Enhancement"
+
+    else:
+
+        mode = " + ".join(modes)
 
     return original, enhanced, mode
