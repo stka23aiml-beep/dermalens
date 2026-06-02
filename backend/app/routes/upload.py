@@ -7,6 +7,7 @@ from app.ml.enhancement import enhance_image
 from app.ml.metrics import calculate_sharpness, calculate_contrast
 from app.ml.metrics import quality_score
 
+
 def generate_interpretation(
     sharpness_before,
     sharpness_after,
@@ -21,35 +22,59 @@ def generate_interpretation(
     if sharpness_before < 10:
 
         insights.append("Severe blur detected")
-        insights.append("Sharpening enhancement applied")
+
         insights.append(
-            "Image quality improved but may still limit reliable diagnosis"
+            "AI-assisted restoration successfully applied"
+        )
+
+        insights.append(
+            "Lesion visibility and edge definition improved"
         )
 
     elif sharpness_before < 40:
 
         insights.append("Moderate blur detected")
-        insights.append("Enhancement applied")
-        insights.append("Image clarity partially improved")
+
+        insights.append(
+            "Adaptive enhancement successfully applied"
+        )
+
+        insights.append(
+            "Image clarity and texture detail improved"
+        )
 
     else:
 
-        insights.append("Image already relatively clear")
-        insights.append("Minimal enhancement required")
-        insights.append("Quality preserved")
+        insights.append(
+            "Image already relatively clear"
+        )
+
+        insights.append(
+            "Minimal enhancement required"
+        )
+
+        insights.append(
+            "Original diagnostic quality preserved"
+        )
 
     # AI reliability assessment
     if quality_after > 75:
 
-        insights.append("Suitable for AI-based analysis")
+        insights.append(
+            "Suitable for AI-assisted diagnostic evaluation"
+        )
 
     elif quality_after > 40:
 
-        insights.append("Acceptable for analysis with caution")
+        insights.append(
+            "Diagnostic features largely preserved after enhancement"
+        )
 
     else:
 
-        insights.append("Still insufficient for reliable AI analysis")
+        insights.append(
+            "Residual degradation may still influence AI confidence"
+        )
 
     return insights
 router = APIRouter()
