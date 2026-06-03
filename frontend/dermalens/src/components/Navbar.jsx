@@ -49,7 +49,14 @@ function Navbar() {
 
           <span className="hover:text-white transition cursor-pointer">
 
-            GitHub
+            <a
+                href="https://github.com/stutikatiyar/dermalens"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition cursor-pointer"
+              >
+                GitHub
+            </a>
 
           </span>
 

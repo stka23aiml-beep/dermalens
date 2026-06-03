@@ -71,37 +71,17 @@ export default function HeroSection() {
 
         </motion.div>
 
-        {/* FLOATING STATS */}
+               {/* FLOATING STATS */}
         <div className="flex gap-6 mt-14">
 
           <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-4">
 
             <p className="text-cyan-300 text-3xl font-black">
-
-              98.6%
-
-            </p>
-
-            <p className="text-slate-400 text-sm mt-1">
-
-              Confidence Recovery
-
-            </p>
-
-          </div>
-
-          <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-4">
-
-            <p className="text-cyan-300 text-3xl font-black">
-
               AI
-
             </p>
 
             <p className="text-slate-400 text-sm mt-1">
-
-              Restoration Active
-
+              Validation Active
             </p>
 
           </div>
