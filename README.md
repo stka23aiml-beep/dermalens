@@ -25,7 +25,9 @@ The system combines:
 to study the relationship between **perceptual image enhancement** and **AI prediction reliability** in dermatology workflows.
 
 ---
-<img width="1897" height="968" alt="image" src="https://github.com/user-attachments/assets/77e140fe-3885-42f4-b0d8-146cf0534069" />
+
+<img width="1882" height="983" alt="image" src="https://github.com/user-attachments/assets/cd7ae212-4428-489c-86ad-8bce0f1a4972" />
+
 
 
 
