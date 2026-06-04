@@ -92,13 +92,13 @@ export default function UploadBox() {
 
       <HeroSection />
 
-      {!loading ? (
+      {!loading && !enhanced ? (
 
   <UploadSection
     handleChange={handleChange}
   />
 
-) : (
+) : loading ? (
 
   <div className="relative z-10 px-6 pb-24 -mt-10">
 
@@ -110,7 +110,7 @@ export default function UploadBox() {
 
   </div>
 
-)}
+) : null}
 
       {/* RESULTS */}
       {!loading && enhanced && (

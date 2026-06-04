@@ -19,61 +19,59 @@ export default function ResultSection({
     <section className="relative z-10 w-full max-w-7xl mx-auto px-6 pb-20">
 
       {/* BEFORE / AFTER */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        {/* ORIGINAL */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-4"
-        >
+  {/* ORIGINAL */}
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+  >
 
-          <p className="text-slate-400 text-sm tracking-wide">
+    <div className="bg-[#071225] border border-white/10 rounded-[32px] p-4">
 
-            Original Image
-
-          </p>
-
-          <div className="rounded-[32px] overflow-hidden border border-white/10 bg-[#020617]/80 backdrop-blur-xl shadow-[0_0_40px_rgba(34,211,238,0.06)]">
-
-            <img
-              src={image}
-              alt="original"
-              className="w-full object-cover"
-            />
-
-          </div>
-
-        </motion.div>
-
-        {/* ENHANCED */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.5 }}
-          className="space-y-4"
-        >
-
-          <p className="text-cyan-300 text-sm tracking-wide">
-
-            Enhanced Output
-
-          </p>
-
-          <div className="rounded-[32px] overflow-hidden border border-cyan-500/20 bg-[#020617]/80 backdrop-blur-xl shadow-[0_0_60px_rgba(34,211,238,0.12)]">
-
-            <img
-              src={enhanced}
-              alt="enhanced"
-              className="w-full object-cover"
-            />
-
-          </div>
-
-        </motion.div>
-
+      <div className="mb-4">
+        <span className="px-3 py-1 rounded-full bg-white/5 text-slate-300 text-xs font-semibold tracking-wider">
+          ORIGINAL
+        </span>
       </div>
+
+      <img
+        src={image}
+        alt="original"
+        className="w-full h-[420px] object-cover rounded-2xl"
+      />
+
+    </div>
+
+  </motion.div>
+
+  {/* ENHANCED */}
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.15, duration: 0.5 }}
+  >
+
+    <div className="bg-[#071225] border border-cyan-500/20 rounded-[32px] p-4 shadow-[0_0_40px_rgba(34,211,238,0.08)]">
+
+      <div className="mb-4">
+        <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 text-xs font-semibold tracking-wider">
+          ENHANCED
+        </span>
+      </div>
+
+      <img
+        src={enhanced}
+        alt="enhanced"
+        className="w-full h-[420px] object-cover rounded-2xl"
+      />
+
+    </div>
+
+  </motion.div>
+
+</div>
 
       {/* MODE */}
       {mode && (
