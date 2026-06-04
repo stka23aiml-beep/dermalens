@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 
-def fix_brightness_lab(img, gamma=0.85):
+def fix_brightness_lab(img, gamma=0.70):
 
     lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
 
@@ -73,16 +73,41 @@ def enhance_image(image_bytes):
 
     modes = []
 
-    # VERY DARK IMAGE
-    if brightness < 90:
+   # VERY DARK IMAGE
+    if brightness < 40:
 
         enhanced = fix_brightness_lab(
-            enhanced
+            enhanced,
+            gamma=0.55
         )
 
         modes.append(
             "Brightness Enhanced"
         )
+
+    elif brightness < 70:
+
+        enhanced = fix_brightness_lab(
+            enhanced,
+            gamma=0.70
+        )
+
+        modes.append(
+            "Brightness Enhanced"
+        )
+
+    elif brightness < 90:
+
+        enhanced = fix_brightness_lab(
+            enhanced,
+            gamma=0.80
+        )
+
+        modes.append(
+            "Brightness Enhanced"
+        )
+
+       
 
     # BLURRY IMAGE
     if sharpness < 80:
@@ -95,13 +120,27 @@ def enhance_image(image_bytes):
             "AI Super Resolution"
         )
 
-    # final mode label
+    print("DEBUG MODE:", modes)
     if len(modes) == 0:
 
         mode = "No Enhancement"
 
     else:
+        
 
         mode = " + ".join(modes)
+        
+
+    new_brightness = np.mean(
+        cv2.cvtColor(
+            enhanced,
+            cv2.COLOR_BGR2GRAY
+        )
+    )
+
+    print(
+        "DEBUG → brightness after:",
+        new_brightness
+    )
 
     return original, enhanced, mode

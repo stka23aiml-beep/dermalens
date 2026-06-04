@@ -39,7 +39,7 @@ export default function ResultSection({
       <img
         src={image}
         alt="original"
-        className="w-full h-[420px] object-cover rounded-2xl"
+        className="w-full h-[340px] object-cover rounded-2xl"
       />
 
     </div>
@@ -53,7 +53,7 @@ export default function ResultSection({
     transition={{ delay: 0.15, duration: 0.5 }}
   >
 
-    <div className="bg-[#071225] border border-cyan-500/20 rounded-[32px] p-4 shadow-[0_0_40px_rgba(34,211,238,0.08)]">
+    <div className="bg-[#071225] border border-cyan-400/30 rounded-[32px] p-4 shadow-[0_0_40px_rgba(34,211,238,0.08)]">
 
       <div className="mb-4">
         <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 text-xs font-semibold tracking-wider">
@@ -64,7 +64,7 @@ export default function ResultSection({
       <img
         src={enhanced}
         alt="enhanced"
-        className="w-full h-[420px] object-cover rounded-2xl"
+        className="w-full h-[340px] object-cover rounded-2xl"
       />
 
     </div>
