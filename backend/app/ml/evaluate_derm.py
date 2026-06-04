@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import pandas as pd
 
+
 from app.ml.enhancement import enhance_image, detect_blur
 from app.ml.derm_model import load_model, predict
 
@@ -110,9 +111,29 @@ def evaluate(image_path):
         f"Delta: {round(delta,4)}"
     )
 
+
+    filename = os.path.basename(image_path)
+
+    if filename.startswith("dark_"):
+        category = "dark"
+
+    elif filename.startswith("blur_"):
+        category = "blur"
+
+    elif filename.startswith("motion_"):
+        category = "motion"
+
+    elif filename.startswith("noise_"):
+        category = "noise"
+
+    else:
+        category = "original"
+
     return {
 
         "image": image_path,
+
+        "category": category,
 
         "mode": mode,
 
@@ -145,6 +166,8 @@ def evaluate(image_path):
     }
 
 
+
+
 if __name__ == "__main__":
 
     images = []
@@ -154,27 +177,6 @@ if __name__ == "__main__":
         images.append(
             f"data/eval/{file}"
         )
-
-    deltas = []
-    improved = 0
-    degraded = 0
-
-    for img_path in images:
-
-        result = evaluate(img_path)
-
-        if result is None:
-            continue
-
-        delta = result["confidence_delta"]
-
-        deltas.append(delta)
-
-        if delta > 0.02:
-            improved += 1
-
-        elif delta < -0.02:
-            degraded += 1
 
     deltas = []
     improved = 0
@@ -208,18 +210,56 @@ if __name__ == "__main__":
         print("Improved     :", improved)
         print("Degraded     :", degraded)
         print("Total Images :", len(deltas))
-    import pandas as pd
+  
+    
+
+    os.makedirs(
+        "evaluation_results",
+        exist_ok=True
+    )
 
     df = pd.DataFrame(results)
 
+    dark_df = df[df["category"] == "dark"]
+    blur_df = df[df["category"] == "blur"]
+    motion_df = df[df["category"] == "motion"]
+    noise_df = df[df["category"] == "noise"]
+    original_df = df[df["category"] == "original"]
+
     df.to_csv(
-        "evaluation_results.csv",
+        "evaluation_results/eval_results.csv",
+        index=False
+    )
+    dark_df.to_csv(
+    "evaluation_results/dark_results.csv",
         index=False
     )
 
-    print(
-        "\nSaved evaluation_results.csv"
+    blur_df.to_csv(
+        "evaluation_results/blur_results.csv",
+        index=False
     )
+
+    motion_df.to_csv(
+        "evaluation_results/motion_results.csv",
+        index=False
+    )
+
+    noise_df.to_csv(
+        "evaluation_results/noise_results.csv",
+        index=False
+    )
+
+    original_df.to_csv(
+    "evaluation_results/original_results.csv",
+    index=False
+)
+
+    print(
+        "\nSaved evaluation_results/eval_results.csv"
+    )
+
+
 
 def predict_confidence(image):
 
