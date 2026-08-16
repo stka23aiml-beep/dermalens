@@ -1,28 +1,53 @@
-from fastapi import APIRouter, UploadFile, File
+import os
 import base64
 import cv2
 
+from fastapi import APIRouter, UploadFile, File
+
 from app.ml.enhancement import enhance_image
-from app.ml.metrics import calculate_sharpness, calculate_contrast
-from app.ml.metrics import quality_score
-from app.ml.inference import predict_confidence
+from app.ml.metrics import calculate_sharpness, calculate_contrast, quality_score
+from app.ml.derm_model import load_model, predict
 
 router = APIRouter()
 
-# Enhancement is rejected if it makes the model LESS confident than this.
-# Matches the threshold validated in evaluate_derm.py.
-CONFIDENCE_DELTA_THRESHOLD = -0.02
+# Load model once, at import time, using a path resolved relative to this
+# file's own location -- NOT relative to the process's working directory.
+# This avoids the fragile cwd-dependent path bug that existed when
+# predict_confidence was imported from evaluate_derm.py.
+_APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # .../app
+_WEIGHTS_PATH = os.path.join(_APP_DIR, "ml", "models", "isic_resnet18.pth")
+
+_model = load_model(_WEIGHTS_PATH)
+
+# Same tolerance band used in evaluate_derm.py -- a confidence drop smaller
+# than this is treated as noise, not real degradation. Keep these in sync
+# if you change one.
+DEGRADATION_THRESHOLD = -0.02
+
+
+def predict_confidence(image_np):
+    _, confidence = predict(_model, image_np)
+    return float(confidence)
 
 
 def generate_interpretation(
     sharpness_before,
     quality_after,
     confidence_delta,
-    mode,
+    enhancement_accepted,
 ):
+    """
+    NOTE: previously this function's "AI confidence" messaging was actually
+    driven by quality_after (sharpness/contrast), not by the real measured
+    confidence_delta -- so the caption could say "may influence AI
+    confidence" or "suitable for diagnosis" independent of what the
+    classifier's confidence actually did. This version separates the two:
+    blur-severity messaging still uses sharpness/quality as before, but the
+    confidence-facing message is now driven directly by the gate decision.
+    """
     insights = []
 
-    # Blur severity analysis -- purely descriptive, based on measured sharpness.
+    # Blur severity analysis (unchanged from before)
     if sharpness_before < 10:
         insights.append("Severe blur detected")
         insights.append("AI-assisted restoration successfully applied")
@@ -36,23 +61,19 @@ def generate_interpretation(
         insights.append("Minimal enhancement required")
         insights.append("Original diagnostic quality preserved")
 
-    # AI reliability assessment -- now driven by the actual measured
-    # confidence delta, not by quality_after as a proxy for it.
-    if confidence_delta < CONFIDENCE_DELTA_THRESHOLD:
+    # Confidence-facing message -- now driven by the ACTUAL measured delta
+    # and the gate's real decision, not by quality_after.
+    if not enhancement_accepted:
         insights.append(
-            "Enhancement reduced AI confidence; original image used for evaluation"
-        )
-    elif quality_after <= 40:
-        # Quality-based artifacts can still be worth flagging even when
-        # confidence held up -- kept as a separate, explicitly-labeled signal
-        # rather than conflated with the confidence check above.
-        insights.append(
-            "Residual visual degradation detected; recommend manual review"
+            f"Enhancement reduced AI confidence by {abs(confidence_delta) * 100:.2f} "
+            "points -- original image used for diagnosis instead"
         )
     elif quality_after > 75:
         insights.append("Suitable for AI-assisted diagnostic evaluation")
-    else:
+    elif quality_after > 40:
         insights.append("Diagnostic features largely preserved after enhancement")
+    else:
+        insights.append("Enhancement accepted, but residual quality remains limited")
 
     return insights
 
@@ -67,8 +88,17 @@ async def upload_image(file: UploadFile = File(...)):
     confidence_after = predict_confidence(enhanced)
     confidence_delta = confidence_after - confidence_before
 
-    # --- Gate: reject the enhancement if it measurably hurt confidence ---
-    enhancement_accepted = confidence_delta >= CONFIDENCE_DELTA_THRESHOLD
+    print("CONF BEFORE:", confidence_before)
+    print("CONF AFTER:", confidence_after)
+    print("CONF DELTA:", confidence_delta)
+
+    # ---- VALIDATION GATE ----
+    # Same logic as evaluate_derm.py: reject the enhancement if it degrades
+    # confidence beyond the noise-tolerance threshold, and serve the
+    # original image + its prediction instead. This is what was MISSING
+    # before -- the enhanced result was always returned regardless of
+    # whether it actually helped.
+    enhancement_accepted = confidence_delta >= DEGRADATION_THRESHOLD
 
     if enhancement_accepted:
         final_image = enhanced
@@ -77,7 +107,7 @@ async def upload_image(file: UploadFile = File(...)):
         final_image = original
         final_confidence = confidence_before
 
-    # calculate metrics (always computed on original vs enhanced, for display)
+    # calculate metrics (still computed on original vs enhanced, for display)
     sharp_before = calculate_sharpness(original)
     sharp_after = calculate_sharpness(enhanced)
 
@@ -91,23 +121,16 @@ async def upload_image(file: UploadFile = File(...)):
         sharp_before,
         quality_after,
         confidence_delta,
-        mode,
+        enhancement_accepted,
     )
 
-    if not enhancement_accepted:
-        interpretation.insert(
-            0,
-            f"Enhancement rejected: confidence dropped "
-            f"{abs(confidence_delta) * 100:.2f} points; showing original image",
-        )
-
-    # encode whichever image the gate selected -- NOT always `enhanced`
+    # encode whichever image the gate decided to serve
     _, buffer = cv2.imencode(".jpg", final_image)
     image_base64 = base64.b64encode(buffer).decode("utf-8")
 
     return {
         "image": image_base64,
-        "mode": mode,
+        "mode": mode if enhancement_accepted else "No Enhancement (rejected by validation gate)",
         "enhancement_accepted": enhancement_accepted,
         "metrics": {
             "sharpness_before": sharp_before,
