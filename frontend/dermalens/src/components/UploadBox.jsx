@@ -53,6 +53,13 @@ export default function UploadBox() {
 
   const [insights, setInsights] = useState([]);
 
+  // NEW: tracks whether the validation gate accepted or rejected the
+  // enhancement. Was previously not read from the backend response at
+  // all, so ResultSection had no way to know and always rendered as if
+  // the enhancement had been accepted -- even when it had actually been
+  // reverted to the original image.
+  const [enhancementAccepted, setEnhancementAccepted] = useState(true);
+
 
   async function handleChange(e) {
 
@@ -72,6 +79,8 @@ export default function UploadBox() {
     setMode("");
 
     setInsights([]);
+
+    setEnhancementAccepted(true);
 
 
     const formData = new FormData();
@@ -138,6 +147,16 @@ export default function UploadBox() {
         data.interpretation || []
       );
 
+      // NEW: capture the gate's decision. Defaults to true if the field
+      // is somehow missing from an older backend response, so this never
+      // crashes -- it just falls back to the old (pre-gate) display
+      // behavior in that case.
+      setEnhancementAccepted(
+        data.enhancement_accepted !== undefined
+          ? data.enhancement_accepted
+          : true
+      );
+
 
     } catch (err) {
 
@@ -202,6 +221,7 @@ export default function UploadBox() {
           confidence={confidence}
           mode={mode}
           insights={insights}
+          enhancementAccepted={enhancementAccepted}
         />
 
       )}
