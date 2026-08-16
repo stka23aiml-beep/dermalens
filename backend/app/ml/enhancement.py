@@ -109,15 +109,41 @@ def enhance_image(image_bytes):
 
        
 
-    # BLURRY IMAGE
-    if sharpness < 80:
+    # BLURRY IMAGE -- tiered severity, mirroring the brightness tiers above
+    if sharpness < 20:
 
         enhanced = enhance_superres(
-            enhanced
+            enhanced,
+            sharpen=True,
+            sharpen_strength=0.6
         )
 
         modes.append(
-            "AI Super Resolution"
+            "AI Super Resolution (severe blur)"
+        )
+
+    elif sharpness < 50:
+
+        enhanced = enhance_superres(
+            enhanced,
+            sharpen=True,
+            sharpen_strength=0.45
+        )
+
+        modes.append(
+            "AI Super Resolution (moderate blur)"
+        )
+
+    elif sharpness < 80:
+
+        enhanced = enhance_superres(
+            enhanced,
+            sharpen=True,
+            sharpen_strength=0.3
+        )
+
+        modes.append(
+            "AI Super Resolution (mild blur)"
         )
 
     print("DEBUG MODE:", modes)
