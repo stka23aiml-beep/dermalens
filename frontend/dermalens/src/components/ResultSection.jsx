@@ -8,11 +8,36 @@ export default function ResultSection({
   metrics,
   confidence,
   mode,
-  insights
+  insights,
+  enhancementAccepted // NEW prop -- must be passed down from Home.jsx as
+                       // response.data.enhancement_accepted. Defaults to
+                       // true below if not provided, so nothing breaks if
+                       // Home.jsx hasn't been updated yet -- but you should
+                       // wire this through for the fix to actually work.
 
 }) {
 
   if (!image || !enhanced) return null;
+
+  const accepted = enhancementAccepted !== undefined ? enhancementAccepted : true;
+
+  // The panel actually shown on the right is either the real enhanced
+  // image or, when the gate rejected it, the original image re-served.
+  // Label it honestly instead of always saying "ENHANCED".
+  const rightPanelLabel = accepted ? "ENHANCED" : "ORIGINAL (SAFE FALLBACK)";
+  const rightPanelBadgeClass = accepted
+    ? "bg-cyan-500/10 text-cyan-300"
+    : "bg-amber-500/10 text-amber-300";
+  const rightPanelBorderClass = accepted
+    ? "border-cyan-400/30 shadow-[0_0_40px_rgba(34,211,238,0.08)]"
+    : "border-amber-400/30 shadow-[0_0_40px_rgba(251,191,36,0.08)]";
+
+  // Confidence display: use the FINAL served confidence (what the user
+  // actually gets), not the raw post-enhancement confidence, which can be
+  // worse than the original when the gate rejected it.
+  const displayedAfter = confidence
+    ? (confidence.final !== undefined ? confidence.final : confidence.after)
+    : null;
 
   return (
 
@@ -46,24 +71,29 @@ export default function ResultSection({
 
   </motion.div>
 
-  {/* ENHANCED */}
+  {/* ENHANCED / FALLBACK */}
   <motion.div
     initial={{ opacity: 0, y: 30 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: 0.15, duration: 0.5 }}
   >
 
-    <div className="bg-[#071225] border border-cyan-400/30 rounded-[32px] p-4 shadow-[0_0_40px_rgba(34,211,238,0.08)]">
+    <div className={`bg-[#071225] border rounded-[32px] p-4 ${rightPanelBorderClass}`}>
 
-      <div className="mb-4">
-        <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 text-xs font-semibold tracking-wider">
-          ENHANCED
+      <div className="mb-4 flex items-center gap-2">
+        <span className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wider ${rightPanelBadgeClass}`}>
+          {rightPanelLabel}
         </span>
+        {!accepted && (
+          <span className="text-xs text-slate-500">
+            enhancement reduced AI confidence -- original used instead
+          </span>
+        )}
       </div>
 
       <img
         src={enhanced}
-        alt="enhanced"
+        alt={accepted ? "enhanced" : "original (fallback)"}
         className="w-full h-[340px] object-cover rounded-2xl"
       />
 
@@ -78,7 +108,11 @@ export default function ResultSection({
 
         <div className="flex justify-center mt-10">
 
-          <div className="px-5 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-sm font-medium backdrop-blur-xl">
+          <div className={`px-5 py-2 rounded-full border text-sm font-medium backdrop-blur-xl ${
+            accepted
+              ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-300"
+              : "bg-amber-500/10 border-amber-500/20 text-amber-300"
+          }`}>
 
             {mode}
 
@@ -135,9 +169,9 @@ export default function ResultSection({
           </p>
 
           <p className={`text-4xl font-black ${
-            confidence.delta >= 0
+            accepted
               ? "text-green-400"
-              : "text-red-400"
+              : "text-amber-400"
           }`}>
 
             {(confidence.before * 100).toFixed(2)}%
@@ -148,25 +182,27 @@ export default function ResultSection({
 
             </span>
 
-            {(confidence.after * 100).toFixed(2)}%
+            {(displayedAfter * 100).toFixed(2)}%
 
           </p>
 
           <p className={`mt-3 text-sm font-medium ${
-            confidence.delta >= 0
+            accepted
               ? "text-green-400"
-              : "text-red-400"
+              : "text-amber-400"
           }`}>
 
-            Δ {(confidence.delta * 100).toFixed(4)}%
+            {accepted
+              ? `Δ ${(confidence.delta * 100).toFixed(4)}%`
+              : "Validation gate reverted to original -- confidence preserved"}
 
           </p>
 
           <p className="mt-4 text-xs text-slate-500 max-w-xl mx-auto leading-relaxed">
 
-            {confidence.delta >= 0
+            {accepted
               ? "Enhanced image preserved diagnostically relevant structures for AI-assisted analysis."
-              : "Residual degradation artifacts may still influence downstream AI confidence."}
+              : "The enhancement pipeline was tested but did not improve AI confidence for this image, so the original was used instead. This is DermaLens's validation gate working as designed."}
 
           </p>
 
