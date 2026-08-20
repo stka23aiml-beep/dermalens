@@ -1,12 +1,22 @@
+import time
+
 import torch
 from torchvision import models, transforms
 from PIL import Image
 import cv2
 
-# 7-class ISIC (example)
+
+# --------------------------------------------------
+# MODEL CONFIG
+# --------------------------------------------------
+
 NUM_CLASSES = 7
 
-# transform for derm model
+
+# --------------------------------------------------
+# IMAGE TRANSFORM
+# --------------------------------------------------
+
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
@@ -17,31 +27,87 @@ transform = transforms.Compose([
 ])
 
 
+# --------------------------------------------------
+# MODEL LOADING
+# --------------------------------------------------
+
 def load_model(weights_path):
-    from torchvision import models
-    import torch
+    print(f"MODEL → loading weights from: {weights_path}")
 
     model = models.resnet18(weights=None)
 
-    # 🔴 CRITICAL FIX: set correct output layer BEFORE loading
-    model.fc = torch.nn.Linear(model.fc.in_features, 7)
+    # Must match the 7-class ISIC checkpoint.
+    model.fc = torch.nn.Linear(
+        model.fc.in_features,
+        NUM_CLASSES
+    )
 
-    state = torch.load(weights_path, map_location="cpu")
+    state = torch.load(
+        weights_path,
+        map_location="cpu"
+    )
+
     model.load_state_dict(state)
 
     model.eval()
+
+    print("MODEL → loaded successfully")
+
     return model
 
 
+# --------------------------------------------------
+# PREDICTION
+# --------------------------------------------------
+
 def predict(model, image_np):
-    image = Image.fromarray(cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB))
+
+    start_time = time.perf_counter()
+
+    print(
+        f"PREDICT → received image: "
+        f"shape={image_np.shape}, "
+        f"dtype={image_np.dtype}"
+    )
+
+    # OpenCV BGR → RGB → PIL
+    image = Image.fromarray(
+        cv2.cvtColor(
+            image_np,
+            cv2.COLOR_BGR2RGB
+        )
+    )
+
+    print("PREDICT → image converted to PIL")
+
+    # Resize + normalize
     tensor = transform(image).unsqueeze(0)
 
+    print(
+        f"PREDICT → tensor ready: "
+        f"shape={tuple(tensor.shape)}"
+    )
+
+    # CPU inference
     with torch.no_grad():
         output = model(tensor)
-        probs = torch.nn.functional.softmax(output[0], dim=0)
+
+    print(
+        f"PREDICT → model inference completed "
+        f"in {time.perf_counter() - start_time:.2f}s"
+    )
+
+    probs = torch.nn.functional.softmax(
+        output[0],
+        dim=0
+    )
 
     confidence = torch.max(probs).item()
     predicted_class = torch.argmax(probs).item()
+
+    print(
+        f"PREDICT → class={predicted_class}, "
+        f"confidence={confidence:.6f}"
+    )
 
     return predicted_class, confidence
