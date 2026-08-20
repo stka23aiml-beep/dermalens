@@ -12,7 +12,7 @@ app = FastAPI()
 # --------------------------------------------------
 
 FRONTEND_ORIGIN = (
-    "https://bookish-acorn-jj4jxjqp7xjxc5xwx-5173.app.github.dev"
+    "https://super-dollop-pjqx9p6w4qv4h65rw-5173.app.github.dev"
 )
 
 app.add_middleware(
