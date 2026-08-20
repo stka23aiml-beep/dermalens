@@ -97,6 +97,7 @@ export default function UploadBox() {
 
       console.log("Backend URL:", backendURL);
 
+
       const res = await fetch(
         `${backendURL}/upload`,
         {
@@ -123,6 +124,10 @@ export default function UploadBox() {
 
 
       const data = await res.json();
+      console.log("UPLOAD RESPONSE:", data);
+      console.log("IMAGE EXISTS:", !!data.image);
+      console.log("IMAGE LENGTH:", data.image?.length);
+
 
 
       if (!data.image) {
