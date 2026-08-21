@@ -1,78 +1,135 @@
-function Navbar() {
+import { motion } from "framer-motion";
+
+export default function UploadSection({
+
+  handleChange
+
+}) {
+
   return (
 
-    <nav className="w-full bg-[#020617]/60 backdrop-blur-2xl sticky top-0 z-50 border-b border-cyan-500/10">
+    <motion.section
+      id="upload-section"
 
-      <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+      initial={{
+        opacity: 0,
+        y: 20
+      }}
 
-        {/* Logo */}
-        <div className="flex items-center gap-3">
+      animate={{
+        opacity: 1,
+        y: 0
+      }}
 
-          <div className="h-3 w-3 rounded-full bg-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.9)] animate-pulse" />
+      transition={{
+        duration: 0.6
+      }}
 
-          <h1 className="text-xl font-semibold tracking-tight text-white">
+      className="relative z-10 flex justify-center px-6 -mt-10 pb-24"
+    >
 
-            DermaLens
+      <div className="
+        w-full
+        max-w-4xl
+        rounded-[36px]
+        border
+        border-cyan-500/10
+        bg-[#020617]/70
+        backdrop-blur-2xl
+        p-12
+        shadow-[0_0_80px_rgba(34,211,238,0.06)]
+      ">
 
-          </h1>
+        {/* HEADER */}
+        <div className="text-center mb-10">
 
-          <span className="text-xs px-2 py-1 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-mono">
+          <p className="text-cyan-300 text-sm tracking-[0.3em] uppercase">
 
-            AI
+            AI Upload Gateway
 
-          </span>
+          </p>
+
+          <h2 className="text-white text-4xl font-black mt-4">
+
+            Upload Dermatology Image
+
+          </h2>
+
+          <p className="text-slate-400 mt-4 max-w-xl mx-auto leading-relaxed">
+
+            Analyze degraded dermatology images using
+            adaptive AI restoration and confidence validation.
+
+          </p>
 
         </div>
 
-        {/* Right Side */}
-        <div className="flex items-center gap-8 text-sm text-slate-400 font-medium">
+        {/* DROPZONE -- the entire label is clickable, so no separate
+            "Select Image" button is needed inside it (that was purely
+            decorative and implied a second action that didn't exist). */}
+        <label
+          htmlFor="upload"
+          className="
+            relative
+            block
+            rounded-[32px]
+            border-2
+            border-dashed
+            border-cyan-500/20
+            bg-white/[0.03]
+            hover:bg-cyan-500/[0.03]
+            hover:border-cyan-400/40
+            transition-all
+            duration-300
+            cursor-pointer
+            overflow-hidden
+          "
+        >
 
-          {/* AI Status */}
-          <div className="hidden md:flex items-center gap-2 text-cyan-300">
+          {/* Glow */}
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-400/5 to-blue-500/0" />
 
-            <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+          <div className="relative flex flex-col items-center justify-center py-24 px-8 text-center">
 
-            <span>
+            {/* Orb */}
+            <div className="w-24 h-24 rounded-full bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center backdrop-blur-xl shadow-[0_0_40px_rgba(34,211,238,0.15)]">
 
-              AI Restoration Active
+              <div className="text-cyan-300 text-4xl">
 
-            </span>
+                ⬆
+
+              </div>
+
+            </div>
+
+            <h3 className="text-white text-2xl font-bold mt-8">
+
+              Drag & Drop Image
+
+            </h3>
+
+            <p className="text-slate-400 mt-4 max-w-md leading-relaxed">
+
+              Supports low-light, blurry, noisy,
+              and compressed dermatology images.
+
+            </p>
 
           </div>
 
-          {/* Links */}
-          <span className="hover:text-white transition cursor-pointer">
+        </label>
 
-            Research
-
-          </span>
-
-          <span className="hover:text-white transition cursor-pointer">
-
-            <a
-                href="https://github.com/stutikatiyar/dermalens"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-white transition cursor-pointer"
-              >
-                GitHub
-            </a>
-
-          </span>
-
-          {/* CTA */}
-          <button className="px-5 py-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:scale-105 transition-all duration-300 shadow-[0_0_30px_rgba(34,211,238,0.25)]">
-
-            Launch Demo
-
-          </button>
-
-        </div>
+        {/* INPUT */}
+        <input
+          id="upload"
+          type="file"
+          accept="image/*"
+          onChange={handleChange}
+          className="hidden"
+        />
 
       </div>
 
-    </nav>
+    </motion.section>
   );
 }
-
-export default Navbar;
