@@ -9,6 +9,7 @@ export default function UploadSection({
   return (
 
     <motion.section
+      id="upload-section"
 
       initial={{
         opacity: 0,
