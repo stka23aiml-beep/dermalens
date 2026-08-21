@@ -17,7 +17,12 @@ FRONTEND_ORIGIN = (
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_ORIGIN],
+    allow_origins=[
+        FRONTEND_ORIGIN,
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_origin_regex=r"https://.*\.app\.github\.dev",
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
